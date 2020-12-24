@@ -29,9 +29,9 @@
 
             <rightJoint>base_to_front_right_wheel</rightJoint>
 
-            <wheelSeparation>0.2</wheelSeparation>  
-            <wheelDiameter>0.12</wheelDiameter>    
-            <torque>0.1</torque>  
+            <wheelSeparation>0.1</wheelSeparation>  
+            <wheelDiameter>0.06</wheelDiameter>    
+            <torque>0.05</torque>  
             <commandTopic>cmd_vel</commandTopic>
             <odometryTopic>odom</odometryTopic>
             <odometryFrame>odom</odometryFrame>
@@ -43,7 +43,7 @@
     <gazebo reference= "sensor_laser">
         <material>Gazebo/Blue</material>
 	    <sensor name="head_hokuyo_sensor" type="ray">
-	    	<pose>0.05 0 0 0 0 0</pose>
+	    	<pose>0.025 0 0 0 0 0</pose>
 	      	<visualize>false</visualize>
 	     	<update_rate>40</update_rate>
 		    <ray>
