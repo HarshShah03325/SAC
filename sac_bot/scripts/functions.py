@@ -34,7 +34,7 @@ def yaw_error(target_yaw):
         yaw_ = yaw_ + 2*math.pi
     if(yaw_>math.pi):
         yaw_ = yaw_ - 2*math.pi
-    print('current yaw: {} yaw: {}'.format(current_yaw_,yaw_))
+    #print('current yaw: {} yaw: {}'.format(current_yaw_,yaw_))
     return (yaw_ - current_yaw_)
 
 def rotate(degree,linear_velocity,angular_velocity):
