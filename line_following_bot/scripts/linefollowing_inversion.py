@@ -22,7 +22,7 @@ isRight = False
 def image_callback(msg):
     global bridge, img, cx,isRight,isLeft
     img = bridge.imgmsg_to_cv2(msg,desired_encoding='bgr8')
-    crop_img = img[290:320,160:480]
+    crop_img = img[280:320,160:480]
 
     gray = cv2.cvtColor(crop_img,cv2.COLOR_RGB2GRAY)
 
@@ -30,12 +30,22 @@ def image_callback(msg):
 
     _,thresh = cv2.threshold(blur,60,255,cv2.THRESH_BINARY)
 
-    _,thresh_turns = cv2.threshold(blur,60,255,cv2.THRESH_BINARY_INV)
+    _,thresh_invert = cv2.threshold(blur,60,255,cv2.THRESH_BINARY_INV)
+
+    _,contours_turn,_ = cv2.findContours(thresh_invert.copy(),1,cv2.CHAIN_APPROX_NONE)
+
+    img_left = thresh[:,:106]
+    img_middle = thresh[:,106:213]
+    img_right = thresh[:,213:320]
+
+    if(cv2.countNonZero(img_left)> 2400 and cv2.countNonZero(img_middle)<1800 and cv2.countNonZero(img_right)>2400):
+        print("black line")
+        thresh = thresh_invert
 
     _,contours,_ = cv2.findContours(thresh.copy(),1,cv2.CHAIN_APPROX_NONE)
-
-    _,contours_turn,_ = cv2.findContours(thresh_turns.copy(),1,cv2.CHAIN_APPROX_NONE)
-
+    # print("img_left",cv2.countNonZero(img_left))
+    # print("img_center",cv2.countNonZero(img_middle))
+    # print("img_right",cv2.countNonZero(img_right))
     if len(contours) > 0:
         isLeft = False
         isRight = False
@@ -68,14 +78,10 @@ def image_callback(msg):
         #     except ZeroDivisionError:
         #         pass
         
-        linefollower()
     else:
-        global cmd_vel_pub
-        msg = Twist()
-        msg.linear.x=0
-        msg.angular.z = 0.6
-        cmd_vel_pub.publish(msg)
-
+        cx=-1
+        cy=-1
+    
 
     cv2.imshow("real img",crop_img)
     #cv2.imshow("gray",gray)
@@ -86,29 +92,60 @@ def image_callback(msg):
 
 def linefollower():
     global cx, cmd_vel_pub
-    print(cx)
     msg = Twist()
 
     # turn left
-    if cx <= 140:
-        msg.linear.x=1
+    if cx <= 20:
+        msg.linear.x=0.1
         msg.angular.z=5
+    elif cx <=50:
+        msg.linear.x=0.3
+        msg.angular.z=3.5
+    elif cx <=100:
+        msg.linear.x=0.6
+        msg.angular.z=2
+    elif cx<=150:
+        msg.linear.x=0.7
+        msg.angular.z=0.8
     # Straight
-    elif 140<cx<175:
+    elif 150<cx<170:
         msg.linear.x=1
         msg.angular.z=0
     # turn right
-    elif cx>=175:
-        msg.linear.x=1
+    elif 170<=cx<220:
+        print("cond1")
+        msg.linear.x=0.7
+        msg.angular.z=-0.8
+    elif 220<=cx<250:
+        print("cond2")
+        msg.linear.x=0.6
+        msg.angular.z=-3
+    elif 250<=cx<270:
+        print("cond3")
+        msg.linear.x=0.4
+        msg.angular.z=-3
+    elif 270<=cx<300:
+        print("cond4")
+        msg.linear.x=0.3
+        msg.angular.z=-3.5
+    elif cx>=300:
+        print("cond5")
+        msg.linear.x=0.1
         msg.angular.z=-5
 
     cmd_vel_pub.publish(msg)
 
+def recovery():
+    global cmd_vel_pub
+    msg = Twist()
+    msg.linear.x=0
+    msg.angular.z = 5
+    cmd_vel_pub.publish(msg)
 
 
 def main():
     rospy.init_node('line_follower')
-    global bridge,img_sub,cmd_vel_pub,isLeft,isRight
+    global bridge,img_sub,cmd_vel_pub,cx
     bridge = cv_bridge.CvBridge()
     img_sub = rospy.Subscriber('/mybot/camera/image_raw',Image,image_callback)
     sub_odom = rospy.Subscriber('/odom', Odometry, clbk_odom)
@@ -117,7 +154,12 @@ def main():
     #rospy.sleep(3)
 
     while not rospy.is_shutdown():
-        linefollower()
+        if False:
+            print("check")
+        if cx>0:
+            linefollower()
+        else:
+            recovery()
 
 if __name__=='__main__':
     main()
