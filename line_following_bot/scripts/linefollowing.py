@@ -91,16 +91,16 @@ def linefollower():
 
     # turn left
     if cx <= 140:
-        msg.linear.x=0.2
-        msg.angular.z=1.5
+        msg.linear.x=1
+        msg.angular.z=5
     # Straight
     elif 140<cx<175:
-        msg.linear.x=0.3
+        msg.linear.x=1
         msg.angular.z=0
     # turn right
     elif cx>=175:
-        msg.linear.x=0.2
-        msg.angular.z=-1.5
+        msg.linear.x=1
+        msg.angular.z=-5
 
     cmd_vel_pub.publish(msg)
 
