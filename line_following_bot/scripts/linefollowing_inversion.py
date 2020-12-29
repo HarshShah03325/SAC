@@ -99,37 +99,54 @@ def linefollower():
         msg.linear.x=0.1
         msg.angular.z=5
     elif cx <=50:
+        msg.linear.x=0.15
+        msg.angular.z=4.5
+    elif cx <=70:
+        msg.linear.x=0.2
+        msg.angular.z=4
+    elif cx<=90:
+        msg.linear.x=0.25
+        msg.angular.z=2.5
+    elif cx<=110:
         msg.linear.x=0.3
-        msg.angular.z=3.5
-    elif cx <=100:
+        msg.angular.z=1.6
+    elif cx<=130:
         msg.linear.x=0.6
-        msg.angular.z=2
-    elif cx<=150:
-        msg.linear.x=0.7
         msg.angular.z=0.8
+    elif cx<=150:
+        msg.linear.x=0.8
+        msg.angular.z=0.3
     # Straight
     elif 150<cx<170:
         msg.linear.x=1
         msg.angular.z=0
     # turn right
-    elif 170<=cx<220:
+    elif 170<=cx<180:
         print("cond1")
-        msg.linear.x=0.7
-        msg.angular.z=-0.8
-    elif 220<=cx<250:
+        msg.linear.x=0.8
+        msg.angular.z=-0.3
+    elif 180<=cx<200:
         print("cond2")
         msg.linear.x=0.6
-        msg.angular.z=-3
-    elif 250<=cx<270:
+        msg.angular.z=-0.8
+    elif 200<=cx<220:
         print("cond3")
-        msg.linear.x=0.4
-        msg.angular.z=-3
-    elif 270<=cx<300:
+        msg.linear.x=0.45
+        msg.angular.z=-1.6
+    elif 220<=cx<250:
         print("cond4")
         msg.linear.x=0.3
-        msg.angular.z=-3.5
-    elif cx>=300:
+        msg.angular.z=-2.5
+    elif 250<=cx<270:
         print("cond5")
+        msg.linear.x=0.2
+        msg.angular.z=-4
+    elif 270<=cx<300:
+        print("cond6")
+        msg.linear.x=0.15
+        msg.angular.z=-4.5
+    elif cx>=300:
+        print("cond7")
         msg.linear.x=0.1
         msg.angular.z=-5
 
@@ -154,8 +171,8 @@ def main():
     #rospy.sleep(3)
 
     while not rospy.is_shutdown():
-        if False:
-            print("check")
+        # if False:
+        #     print("check")
         if cx>0:
             linefollower()
         else:
