@@ -75,6 +75,7 @@ def image_callback(msg):
     
 
     cv2.imshow("real img",crop_img)
+
     cv2.waitKey(3)
 
 
@@ -91,59 +92,76 @@ def LaserScanProcess(msg):
 
 def linefollower():
     global cx, cmd_vel_pub
-    cmd_vel_pub = rospy.Publisher('/cmd_vel',Twist,queue_size=10)
+    cmd_vel_pub=rospy.Publisher('/cmd_vel',Twist,queue_size=10)
     msg = Twist()
-    print("cx: {}".format(cx))
+
     # turn left
-    if cx <= 30:
+    if cx <= 20:
         msg.linear.x=0.1
         msg.angular.z=5
     elif cx <=50:
+        msg.linear.x=0.15
+        msg.angular.z=4.5
+    elif cx <=70:
+        msg.linear.x=0.2
+        msg.angular.z=4
+    elif cx<=90:
+        msg.linear.x=0.25
+        msg.angular.z=2.5
+    elif cx<=110:
         msg.linear.x=0.3
-        msg.angular.z=4
-    elif cx <=100:
+        msg.angular.z=1.6
+    elif cx<=130:
         msg.linear.x=0.6
-        msg.angular.z=4
-    elif cx<=150:
-        msg.linear.x=0.7
         msg.angular.z=0.8
+    elif cx<=150:
+        msg.linear.x=0.8
+        msg.angular.z=0.3
     # Straight
     elif 150<cx<170:
         msg.linear.x=1
         msg.angular.z=0
     # turn right
-    elif 170<=cx<220:
+    elif 170<=cx<180:
         print("cond1")
-        msg.linear.x=0.7
-        msg.angular.z=-0.8
-    elif 220<=cx<250:
+        msg.linear.x=0.8
+        msg.angular.z=-0.3
+    elif 180<=cx<200:
         print("cond2")
         msg.linear.x=0.6
-        msg.angular.z=-4
-    elif 250<=cx<270:
+        msg.angular.z=-0.8
+    elif 200<=cx<220:
         print("cond3")
-        msg.linear.x=0.4
-        msg.angular.z=-4
-    elif 270<=cx<300:
+        msg.linear.x=0.45
+        msg.angular.z=-1.6
+    elif 220<=cx<250:
         print("cond4")
         msg.linear.x=0.3
-        msg.angular.z=-5
-    elif cx>=300:
+        msg.angular.z=-2.5
+    elif 250<=cx<270:
         print("cond5")
+        msg.linear.x=0.2
+        msg.angular.z=-4
+    elif 270<=cx<300:
+        print("cond6")
+        msg.linear.x=0.15
+        msg.angular.z=-4.5
+    elif cx>=300:
+        print("cond7")
         msg.linear.x=0.1
         msg.angular.z=-5
 
     cmd_vel_pub.publish(msg)
 
 
-# def recovery():
-#     global cmd_vel_pub
-#     cmd_vel_pub = rospy.Publisher('/cmd_vel',Twist,queue_size=10)
+def recovery():
+    global cmd_vel_pub
+    cmd_vel_pub = rospy.Publisher('/cmd_vel',Twist,queue_size=10)
 
-#     msg = Twist()
-#     msg.linear.x=0
-#     msg.angular.z = 5
-#     cmd_vel_pub.publish(msg)
+    msg = Twist()
+    msg.linear.x=0
+    msg.angular.z = 5
+    cmd_vel_pub.publish(msg)
 
 
 def wall_follower():
@@ -207,8 +225,8 @@ def main():
     rospy.sleep(3)
     
     while not rospy.is_shutdown():
-        # if sensors['right']<0.4:
-        #     right_wall_follower()
+        if sensors['right']<0.4:
+            right_wall_follower()
         if sensors['left']<0.4:
             left_wall_follower()
         elif cx>0:

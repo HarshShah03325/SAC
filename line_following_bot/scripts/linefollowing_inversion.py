@@ -59,24 +59,6 @@ def image_callback(msg):
         cv2.drawContours(crop_img, contours, -1, (0,255,0), 1)
 
         center=[]
-
-        # for i in range(len(contours_turn)):
-        #     moments = cv2.moments(contours_turn[i])
-        #     try:
-        #         turnx = int(moments['m10']/moments['m00'])
-        #         turny = int(moments['m01']/moments['m00'])
-        #         center.append((turnx,turny))
-        #         cv2.circle(crop_img,center[-1],5,(0,0,255),-1)
-        #         if(turny<55 and 20<=turnx<=140):
-        #             print("turnx:",turnx)
-        #             print("turny:",turny)
-        #             isLeft = True
-        #         if(turny<55 and 180<=turnx<=300):
-        #             print("turnx:",turnx)
-        #             print("turny:",turny)
-        #             isRight = True
-        #     except ZeroDivisionError:
-        #         pass
         
     else:
         cx=-1
