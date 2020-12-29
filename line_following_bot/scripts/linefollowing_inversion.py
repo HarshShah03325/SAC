@@ -93,9 +93,9 @@ def image_callback(msg):
 def linefollower():
     global cx, cmd_vel_pub
     msg = Twist()
-
+    print("cx: {}".format(cx))
     # turn left
-    if cx <= 20:
+    if cx <= 30:
         msg.linear.x=0.1
         msg.angular.z=5
     elif cx <=50:
@@ -127,7 +127,7 @@ def linefollower():
     elif 270<=cx<300:
         print("cond4")
         msg.linear.x=0.3
-        msg.angular.z=-3.5
+        msg.angular.z=-5
     elif cx>=300:
         print("cond5")
         msg.linear.x=0.1
