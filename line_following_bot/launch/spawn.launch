@@ -9,7 +9,7 @@
   <arg name="model" default="$(find line_following_bot)/urdf/bot.xacro"/>
 
     <include file="$(find arena_with_qr)/launch/launch_in_gz.launch">
-<!--<include file="$(find gazebo_ros)/launch/empty_world.launch">-->
+<!-- <include file="$(find gazebo_ros)/launch/empty_world.launch"> -->
     
   </include>
 

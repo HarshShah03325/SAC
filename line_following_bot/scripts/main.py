@@ -44,14 +44,14 @@ def image_callback(msg):
 
     _,thresh_invert = cv2.threshold(blur,60,255,cv2.THRESH_BINARY_INV)
 
-    _,contours_turn,_ = cv2.findContours(thresh_invert.copy(),1,cv2.CHAIN_APPROX_NONE)
+   # _,contours_turn,_ = cv2.findContours(thresh_invert.copy(),1,cv2.CHAIN_APPROX_NONE)
 
     img_left = thresh[:,:106]
     img_middle = thresh[:,106:213]
     img_right = thresh[:,213:320]
 
     if(cv2.countNonZero(img_left)> 2400 and cv2.countNonZero(img_middle)<1800 and cv2.countNonZero(img_right)>2400):
-        print("black line")
+        #print("black line")
         thresh = thresh_invert
 
     _,contours,_ = cv2.findContours(thresh.copy(),1,cv2.CHAIN_APPROX_NONE)
@@ -67,12 +67,22 @@ def image_callback(msg):
         cv2.line(crop_img,(0,cy),(1280,cy),(255,0,0),1)
         cv2.drawContours(crop_img, contours, -1, (0,255,0), 1)
 
-        center=[]
         
     else:
         cx=-1
         cy=-1
     
+    stop_img = img[160:320,40:300]
+    gray_stop = cv2.cvtColor(stop_img,cv2.COLOR_RGB2GRAY)
+    blur_stop = cv2.GaussianBlur(gray_stop,(5,5),0)
+    _,thresh_stop = cv2.threshold(blur_stop,60,255,cv2.THRESH_BINARY)
+    count = cv2.countNonZero(thresh_stop)
+    print(count)
+    if 13500<count<14300 and len(contours)==1 and 3000<cv2.countNonZero(thresh_stop[:,120:180])<3400:
+        print(count)
+        #print("middle",cv2.countNonZero(thresh_stop[:,120:180]))
+        print("stop")
+
 
     cv2.imshow("real img",crop_img)
 
@@ -83,11 +93,11 @@ def LaserScanProcess(msg):
     global sensors
 
     sensors = {
-       "right" : msg.ranges[0],
+       "right" : min(min(msg.ranges[0:150]),10),
         "front_right" : min(min(msg.ranges[144:287]),10),
         "front" : min(min(msg.ranges[288:431]),10),
         "front_left" : min(min(msg.ranges[432:575]),10),
-        "left" :msg.ranges[719],
+        "left" :min(min(msg.ranges[580:720]),10),
     }
 
 def linefollower():
@@ -97,58 +107,58 @@ def linefollower():
 
     # turn left
     if cx <= 20:
-        msg.linear.x=0.1
+        msg.linear.x=0.2
         msg.angular.z=5
     elif cx <=50:
-        msg.linear.x=0.15
+        msg.linear.x=0.2
         msg.angular.z=4.5
     elif cx <=70:
         msg.linear.x=0.2
         msg.angular.z=4
     elif cx<=90:
-        msg.linear.x=0.25
-        msg.angular.z=2.5
+        msg.linear.x=0.2
+        msg.angular.z=3
     elif cx<=110:
         msg.linear.x=0.3
-        msg.angular.z=1.6
+        msg.angular.z=2.5
     elif cx<=130:
-        msg.linear.x=0.6
-        msg.angular.z=0.8
+        msg.linear.x=0.4
+        msg.angular.z=2
     elif cx<=150:
-        msg.linear.x=0.8
-        msg.angular.z=0.3
+        msg.linear.x=0.6
+        msg.angular.z=1.5
     # Straight
     elif 150<cx<170:
-        msg.linear.x=1
+        msg.linear.x=0.8
         msg.angular.z=0
     # turn right
     elif 170<=cx<180:
-        print("cond1")
-        msg.linear.x=0.8
-        msg.angular.z=-0.3
-    elif 180<=cx<200:
-        print("cond2")
+        #print("cond1")
         msg.linear.x=0.6
-        msg.angular.z=-0.8
+        msg.angular.z=-1.5
+    elif 180<=cx<200:
+        #print("cond2")
+        msg.linear.x=0.4
+        msg.angular.z=-2
     elif 200<=cx<220:
-        print("cond3")
-        msg.linear.x=0.45
-        msg.angular.z=-1.6
-    elif 220<=cx<250:
-        print("cond4")
+        #print("cond3")
         msg.linear.x=0.3
         msg.angular.z=-2.5
+    elif 220<=cx<250:
+        #print("cond4")
+        msg.linear.x=0.2
+        msg.angular.z=-3
     elif 250<=cx<270:
-        print("cond5")
+        #print("cond5")
         msg.linear.x=0.2
         msg.angular.z=-4
     elif 270<=cx<300:
-        print("cond6")
-        msg.linear.x=0.15
+        #print("cond6")
+        msg.linear.x=0.2
         msg.angular.z=-4.5
     elif cx>=300:
-        print("cond7")
-        msg.linear.x=0.1
+        #print("cond7")
+        msg.linear.x=0.2
         msg.angular.z=-5
 
     cmd_vel_pub.publish(msg)
@@ -160,7 +170,7 @@ def recovery():
 
     msg = Twist()
     msg.linear.x=0
-    msg.angular.z = 5
+    msg.angular.z = 3
     cmd_vel_pub.publish(msg)
 
 
@@ -180,7 +190,7 @@ def wall_follower():
             msg.angular.z=-angle
         elif left>right:
             msg.angular.z=angle
-    print("left: {}, right: {}, angular: {}".format(sensors['left'],sensors['right'],angle))
+    #print("left: {}, right: {}, angular: {}".format(sensors['left'],sensors['right'],angle))
     cmd_vel_pub.publish(msg)
 
 def left_wall_follower():
@@ -214,8 +224,6 @@ def right_wall_follower():
     cmd_vel_pub.publish(msg)
 
 
-
-
 def main():
     global sensors
     rospy.init_node('wall_follower',anonymous=True)
@@ -225,15 +233,25 @@ def main():
     rospy.sleep(3)
     
     while not rospy.is_shutdown():
-        if sensors['right']<0.4:
-            right_wall_follower()
-        if sensors['left']<0.4:
-            left_wall_follower()
-        elif cx>0:
+        # if sensors['right']<0.4:
+        #     right_wall_follower()
+        # if sensors['left']<0.4:
+        #     left_wall_follower()
+        # elif cx>0:
+        #     linefollower()
+        # else :
+        #     go_straight(0.3)
+        # if False:
+        #     print("true")
+        if cx>0:
             linefollower()
-        else :
-            go_straight(1)
-
+        else:
+            if sensors["left"]<0.4:
+                left_wall_follower()
+            elif sensors["right"]<0.4:
+                right_wall_follower()
+            else:
+                recovery()
 
 if __name__=='__main__':
     main()
